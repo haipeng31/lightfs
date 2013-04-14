@@ -122,6 +122,11 @@ int DirINode::childCnt() const
 	return children_.size();
 }
 
+void DirINode::checkPoint(const CheckPointerPtr &checkPointerPtr)
+{
+	checkPointerPtr->checkPointDir(shared_from_this());
+}
+
 FileINode::FileINode(const string &key)
  :	INode(key)
 {
@@ -152,6 +157,11 @@ FileINode::ChunkId FileINode::getChunk(int index) const
 int FileINode::chunkCnt() const
 {
 	return chunks_.size();
+}
+
+void FileINode::checkPoint(const CheckPointerPtr &checkPointerPtr)
+{
+	checkPointerPtr->checkPointFile(shared_from_this());
 }
 
 /*

@@ -228,3 +228,9 @@ DirTree::INodePtr DirTree::getINode(const string &path)
 	
 	return static_cast<DirINode *>(pdirnode.get())->searchChild(file);
 }
+
+void DirTree::checkPoint(const CheckPointerPtr &checkPointerPtr)
+{
+	INodePtr rootNode = getINode("/");
+	rootNode->checkPoint(checkPointerPtr, fp);
+}

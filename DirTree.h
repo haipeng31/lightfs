@@ -9,10 +9,12 @@ using std::list;
 using std::shared_ptr;
 namespace lightfs {
 
+class CheckPointer;
 class DirTree {
 
 public:
 	typedef shared_ptr<INode> INodePtr;
+	typedef shared_ptr<CheckPointer> CheckPointerPtr;
 	typedef int64_t ChunkId;
 	DirTree();
 
@@ -30,6 +32,9 @@ public:
 	ChunkId getLastChunk(const string &path);
 	
 	INodePtr getINode(const string &path);
+
+	/* checkpoint the dir tree */
+	void checkPoint(const CheckPointerPtr &checkPointerPtr);
 private:
 	HashTable dirTable_;	
 };

@@ -21,11 +21,14 @@ using std::string;
 using std::list;
 using std::vector;
 using std::shared_ptr;
-
+using std::shared_from_this;
 namespace lightfs {
+
+class CheckPointer;
 
 class INode {
 public:
+	typedef shared_ptr<CheckPointer> CheckPointerPtr;
 	explicit INode(const string &key);
 	virtual ~INode() { }
 
@@ -45,6 +48,9 @@ public:
 	void setUid(int uid);
 	int gid() const;
 	void setGid(int gid);
+	
+	/* do checkpoint */
+	virtual void checkPoint(const CheckPointerPtr &) = 0;
 
 private:
 	string key_;
@@ -63,7 +69,7 @@ private:
 	int gid_;
 };
 
-class DirINode : public INode {
+class DirINode : public INode, public shared_from_this<DirINode> {
 public:
 	typedef shared_ptr<INode> INodePtr;
 	explicit DirINode(const string &key);
@@ -73,11 +79,13 @@ public:
 	const INodePtr searchChild(const string &key) const;
 	const list<INodePtr> &children() const;
 	int childCnt() const;
+
+	void checkPoint(const CheckPointerPtr &checkPointerPtr); 
 private:
 	list<INodePtr> children_;
 };
 
-class FileINode : public INode{
+class FileINode : public INode, public shared_from_this<FileINode> {
 public:
 	typedef int64_t ChunkId;
 	explicit FileINode(const string &key);
@@ -88,7 +96,8 @@ public:
 	ChunkId getChunk(int index) const;
 	const vector<ChunkId> &chunks() const;
 	int chunkCnt() const;
-
+	
+	void checkPoint(const CheckPointerPtr &checkPointerPtr);
 private:
 	vector<ChunkId> chunks_;
 };
