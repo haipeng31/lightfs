@@ -23,7 +23,7 @@ public:
 
 	void insert(const string &key, const INodePtr &inodePtr);
 	void erase(const string &key);
-	const INodePtr search(const string &key);
+	INodePtr search(const string &key);
 	int size() const;
 
 private:

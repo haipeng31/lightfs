@@ -36,7 +36,7 @@ void HashTable::erase(const string &key)
 	size_--;
 }
 
-const HashTable::INodePtr HashTable::search(const string &key)
+HashTable::INodePtr HashTable::search(const string &key)
 {
 	int code = hashCode(key);
 	list<INodePtr>::iterator it = lookFor(table_[code], key);
