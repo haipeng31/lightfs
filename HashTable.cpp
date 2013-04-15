@@ -36,10 +36,10 @@ void HashTable::erase(const string &key)
 	size_--;
 }
 
-HashTable::INodePtr HashTable::search(const string &key)
+HashTable::INodePtr HashTable::search(const string &key) const
 {
 	int code = hashCode(key);
-	list<INodePtr>::iterator it = lookFor(table_[code], key);
+	list<INodePtr>::const_iterator it = lookFor(table_[code], key);
 	if (it != table_[code].end()) {
 		return (*it);
 	} else {
@@ -64,6 +64,17 @@ list<HashTable::INodePtr>::iterator HashTable::lookFor(list<INodePtr> &inodeList
 	return inodeList.end();
 }
 
+list<HashTable::INodePtr>::const_iterator HashTable::lookFor(const list<INodePtr> &inodeList, const string &key) const
+{
+	list<INodePtr>::const_iterator it;
+	for (it = inodeList.begin(); it != inodeList.end(); it++) {
+		if ((*it)->key() == key) {
+			return it;
+		}
+	}
+
+	return inodeList.end();
+}
 /*
  * BKDR hash function
  */
