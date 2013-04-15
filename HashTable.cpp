@@ -13,7 +13,7 @@ HashTable::~HashTable()
 {
 }
 
-void HashTable::insert(const string &key, const INodePtr &inodePtr)
+void HashTable::insert(const string &key, const DirINodePtr &inodePtr)
 {
 	int code = hashCode(key);
 	if (table_[code].size() == 0) {
@@ -30,20 +30,20 @@ void HashTable::insert(const string &key, const INodePtr &inodePtr)
 void HashTable::erase(const string &key)
 {
 	int code = hashCode(key);
-	list<INodePtr>::iterator it = lookFor(table_[code], key);
+	list<DirINodePtr>::iterator it = lookFor(table_[code], key);
 	assert(it != table_[code].end());
 	table_[code].erase(it);
 	size_--;
 }
 
-HashTable::INodePtr HashTable::search(const string &key) const
+HashTable::DirINodePtr HashTable::search(const string &key) const
 {
 	int code = hashCode(key);
-	list<INodePtr>::const_iterator it = lookFor(table_[code], key);
+	list<DirINodePtr>::const_iterator it = lookFor(table_[code], key);
 	if (it != table_[code].end()) {
 		return (*it);
 	} else {
-		return INodePtr();
+		return DirINodePtr();
 	}
 }
 
@@ -52,9 +52,9 @@ int HashTable::size() const
 	return size_;
 }
 
-list<HashTable::INodePtr>::iterator HashTable::lookFor(list<INodePtr> &inodeList, const string &key)
+list<HashTable::DirINodePtr>::iterator HashTable::lookFor(list<DirINodePtr> &inodeList, const string &key)
 {
-	list<INodePtr>::iterator it;
+	list<DirINodePtr>::iterator it;
 	for (it = inodeList.begin(); it != inodeList.end(); it++) {
 		if ((*it)->key() == key) {
 			return it;
@@ -64,9 +64,9 @@ list<HashTable::INodePtr>::iterator HashTable::lookFor(list<INodePtr> &inodeList
 	return inodeList.end();
 }
 
-list<HashTable::INodePtr>::const_iterator HashTable::lookFor(const list<INodePtr> &inodeList, const string &key) const
+list<HashTable::DirINodePtr>::const_iterator HashTable::lookFor(const list<DirINodePtr> &inodeList, const string &key) const
 {
-	list<INodePtr>::const_iterator it;
+	list<DirINodePtr>::const_iterator it;
 	for (it = inodeList.begin(); it != inodeList.end(); it++) {
 		if ((*it)->key() == key) {
 			return it;

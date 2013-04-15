@@ -105,7 +105,7 @@ void DirINode::delChild(const INodePtr &childPtr)
 	children_.remove(childPtr);
 }
 
-const DirINode::INodePtr DirINode::searchChild(const string &key) const
+const DirINode::FileINodePtr DirINode::searchChild(const string &key) const
 {
 	list<INodePtr>::const_iterator lit;
 	for (lit = children_.begin(); lit != children_.end(); lit++) {
@@ -114,7 +114,7 @@ const DirINode::INodePtr DirINode::searchChild(const string &key) const
 		}
 	}
 
-	return INodePtr();
+	return FileINodePtr();
 }
 
 int DirINode::childCnt() const

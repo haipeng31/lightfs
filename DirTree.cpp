@@ -9,7 +9,7 @@ using std::stringstream;
 
 DirTree::DirTree()
 {
-	INodePtr rootNode(new DirINode(string("/")));
+	DirINodePtr rootNode(new DirINode(string("/")));
 	dirTable_.insert(string("/"), rootNode);
 }
 
@@ -19,7 +19,7 @@ DirTree::DirTree()
  */
 int DirTree::addDir(const string &pdir, const string &dir)
 {
-	INodePtr pDirNode = dirTable_.search(pdir);
+	DirINodePtr pDirNode = dirTable_.search(pdir);
 	if (pDirNode == NULL) {
 		LOG_TRACE << "Parent dir doesn't exist";
 		return -2;
@@ -35,19 +35,19 @@ int DirTree::addDir(const string &pdir, const string &dir)
 		key = pdir + "/" + dir;
 	}
 
-	INodePtr newDirNode = dirTable_.search(key);
+	DirINodePtr newDirNode = dirTable_.search(key);
 	if (newDirNode != NULL) {
 		LOG_TRACE << "New dir already exist";
 		return -1;
 	}
-	newDirNode = INodePtr(new DirINode(key));
+	newDirNode = DirINodePtr(new DirINode(key));
 
 	/* add new hash table item */
 	dirTable_.insert(key, newDirNode);
 	assert(dirTable_.search(key) != NULL);
 
 	/* add to the pdir's children list */
-	static_cast<DirINode *>(pDirNode.get())->addChild(newDirNode);
+	pDirNode->addChild(newDirNode);
 	
 	return 0;
 }	
@@ -61,7 +61,7 @@ int DirTree::addDir(const string &pdir, const string &dir)
  */
 int DirTree::delDir(const string &pdir, const string &dir)
 {
-	INodePtr pDirNode = dirTable_.search(pdir);
+	DirINodePtr pDirNode = dirTable_.search(pdir);
 	if (pDirNode == NULL) {
 		LOG_TRACE << "Parent dir doesn't exist";
 		return -2;
@@ -76,13 +76,13 @@ int DirTree::delDir(const string &pdir, const string &dir)
 		key = pdir + "/" + dir;
 	}
 
-	INodePtr childDirNode = dirTable_.search(key);
+	DirINodePtr childDirNode = dirTable_.search(key);
 	if (childDirNode == NULL) {
 		LOG_TRACE << "child dir doesn't exist";
 		return -1;
 	}
 
-	if (static_cast<DirINode *>(childDirNode.get())->childCnt() != 0) {
+	if (childDirNode->childCnt() != 0) {
 		LOG_TRACE << "The dir is not empty";
 		return -3;
 	}
@@ -90,53 +90,53 @@ int DirTree::delDir(const string &pdir, const string &dir)
 	dirTable_.erase(key);
 
 	/* delete from the pdir's children list */
-	static_cast<DirINode *>(pDirNode.get())->delChild(childDirNode);
+	pDirNode->delChild(childDirNode);
 	
 	return 0;
 }
 	
 const list<DirTree::INodePtr>& DirTree::readDir(const string &dir) const
 {
-	INodePtr inode = dirTable_.search(dir);
+	DirINodePtr inode = dirTable_.search(dir);
 	if (inode == NULL) {
 		LOG_TRACE << "Dir " << dir << " not found";
 	}
-	return static_cast<DirINode *>(inode.get())->children();
+	return inode->children();
 }
 
 int DirTree::addFile(const string &pdir, const string &file)
 {
-	INodePtr pDirNode = dirTable_.search(pdir);
+	DirINodePtr pDirNode = dirTable_.search(pdir);
 	if (pDirNode == NULL) {
 		LOG_TRACE << "Parent dir doesn't exist";
 		return -2;
 	}
 	
-	if (static_cast<DirINode *>(pDirNode.get())->searchChild(file) != NULL) {
+	if (pDirNode->searchChild(file) != NULL) {
 		LOG_TRACE << "file already exist";
 		return -1;
 	}
 	INodePtr newnode(new FileINode(file));
-	static_cast<DirINode *>(pDirNode.get())->addChild(newnode);
+	pDirNode->addChild(newnode);
 	
 	return 0;
 }
 
 int DirTree::delFile(const string &pdir, const string &file)
 {
-	INodePtr pDirNode = dirTable_.search(pdir);
+	DirINodePtr pDirNode = dirTable_.search(pdir);
 	if (pDirNode == NULL) {
 		LOG_TRACE << "Parent dir doesn't exist";
 		return -2;
 	}
 	
-	INodePtr node = static_cast<DirINode *>(pDirNode.get())->searchChild(file);
+	INodePtr node = pDirNode->searchChild(file);
 	if (node == NULL) {
 		LOG_TRACE << "file doesn't exist";
 		return -1;
 	}
 	
-	static_cast<DirINode *>(pDirNode.get())->delChild(node);
+	pDirNode->delChild(node);
 	
 	return 0;
 }
@@ -144,7 +144,7 @@ int DirTree::delFile(const string &pdir, const string &file)
 	
 int DirTree::addChunk(const string &path, ChunkId chunkId)
 {
-	INodePtr node = getINode(path);
+	FileINodePtr node = getFileINode(path);
 	if (node == NULL) {
 		LOG_TRACE << "file doesn't exits";
 		return -1;
@@ -165,14 +165,14 @@ int DirTree::addChunk(const string &path, ChunkId chunkId)
 		info.setChunkAddr(i, addr);
 	}
 	*/
-	static_cast<FileINode *>(node.get())->addChunk(chunkId);
+	node->addChunk(chunkId);
 	
 	return 0;
 }
 
 int DirTree::delLastChunk(const string &path)
 {
-	INodePtr node = getINode(path);
+	FileINodePtr node = getFileINode(path);
 	if (node == NULL) {
 		LOG_TRACE << "file doesn't exits";
 		return -1;
@@ -182,57 +182,51 @@ int DirTree::delLastChunk(const string &path)
 
 
 	/* delete the chunk meta data */
-	static_cast<FileINode *>(node.get())->delLastChunk();
+	node->delLastChunk();
 
 	return 0;
 }
 
 DirTree::ChunkId DirTree::getChunk(const string &path, int index)
 {
-	INodePtr node = getINode(path);
+	FileINodePtr node = getFileINode(path);
 	assert(node != NULL);
 	
-	assert((index >= 0) && (index < static_cast<FileINode *>(node.get())->chunkCnt()));
+	assert((index >= 0) && (index < node->chunkCnt()));
 	
-	return static_cast<FileINode *>(node.get())->getChunk(index);
+	return node->getChunk(index);
 }
 
 DirTree::ChunkId DirTree::getLastChunk(const string &path)
 {
-	INodePtr node = getINode(path);
+	FileINodePtr node = getFileINode(path);
 	assert(node != NULL);
 	
-	FileINode *tempFileINode = static_cast<FileINode *>(node.get());
-	return tempFileINode->getChunk(tempFileINode->chunkCnt()-1);
+	return node->getChunk(node->chunkCnt()-1);
 }
 
-DirTree::INodePtr DirTree::getINode(const string &path) const
+DirTree::FileINodePtr DirTree::getFileINode(const string &filePath) const
 {
-	INodePtr dirnode = dirTable_.search(path);
-	if (dirnode != NULL) {
-		return dirnode;
-	}
-	int pos = path.find_last_of('/');
-	string dir = path.substr(0, pos);
+	int pos = filePath.find_last_of('/');
+	string dir = filePath.substr(0, pos);
 	if (dir == "") {
 		dir = "/";
 	}
 
-	string file = path.substr(pos+1);
+	string file = filePath.substr(pos+1);
 
-	INodePtr pdirnode = dirTable_.search(dir);
-	if (pdirnode == NULL) {
+	DirINodePtr pdirNode = dirTable_.search(dir);
+	if (pdirNode == NULL) {
 		LOG_TRACE << "Dir doesn't exist";
-		return INodePtr();
+		return FileINodePtr();
 	}
 	
-	return static_cast<DirINode *>(pdirnode.get())->searchChild(file);
+	return pdirNode->searchChild(file);
 }
 
-/*
-void DirTree::checkPoint(const CheckPointerPtr &checkPointerPtr)
+
+DirTree::DirINodePtr DirTree::getDirINode(const string &dirPath) const
 {
-	INodePtr rootNode = getINode("/");
-	rootNode->checkPoint(checkPointerPtr, fp);
+	return dirTable_.search(dirPath);
 }
-*/
+

@@ -69,14 +69,16 @@ private:
 	int gid_;
 };
 
+class FileINode;
 class DirINode : public INode, public enable_shared_from_this<DirINode> {
 public:
 	typedef shared_ptr<INode> INodePtr;
+	typedef shared_ptr<FileINode> FileINodePtr;
 	explicit DirINode(const string &key);
 	
 	void addChild(const INodePtr &childPtr);
 	void delChild(const INodePtr &childPtr);
-	const INodePtr searchChild(const string &key) const;
+	const FileINodePtr searchChild(const string &key) const;
 	const list<INodePtr> &children() const;
 	int childCnt() const;
 

@@ -49,7 +49,7 @@ int CheckPointer::writeTreeToDisk(const string &checkPointFile)
 	 */
 	//dirTree_.checkPoint(shared_from_this());
 	string rootPath = "/";
-	INodePtr rootNode = dirTree_.getINode(rootPath);
+	INodePtr rootNode = INodePtr(dirTree_.getDirINode(rootPath));
 	QueueEntity queueEntity;
 	queueEntity.node_ = rootNode;
 	queueEntity.parentDir_ = "";     // This will not be used

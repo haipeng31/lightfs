@@ -14,7 +14,8 @@ class DirTree {
 
 public:
 	typedef shared_ptr<INode> INodePtr;
-	typedef shared_ptr<CheckPointer> CheckPointerPtr;
+	typedef shared_ptr<FileINode> FileINodePtr;
+	typedef shared_ptr<DirINode> DirINodePtr;
 	typedef int64_t ChunkId;
 	DirTree();
 
@@ -31,10 +32,8 @@ public:
 	ChunkId getChunk(const string &path, int index);
 	ChunkId getLastChunk(const string &path);
 	
-	INodePtr getINode(const string &path) const;
-
-	/* checkpoint the dir tree */
-	//void checkPoint(const CheckPointerPtr &checkPointerPtr);
+	FileINodePtr getFileINode(const string &filePath) const;
+	DirINodePtr getDirINode(const string &dirPath) const;
 private:
 	HashTable dirTable_;	
 };

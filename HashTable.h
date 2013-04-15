@@ -12,26 +12,26 @@ using std::shared_ptr;
 
 namespace lightfs {
 
-class INode;
+class DirINode;
 
 class HashTable {
 
 public:
-	typedef shared_ptr<INode> INodePtr;
+	typedef shared_ptr<DirINode> DirINodePtr;
 	explicit HashTable(int allocSize = kAllocSize);
 	~HashTable();
 
-	void insert(const string &key, const INodePtr &inodePtr);
+	void insert(const string &key, const DirINodePtr &inodePtr);
 	void erase(const string &key);
-	INodePtr search(const string &key) const;
+	DirINodePtr search(const string &key) const;
 	int size() const;
 
 private:
-	list<INodePtr>::iterator lookFor(list<INodePtr> &inodeList, const string &key);
-	list<INodePtr>::const_iterator lookFor(const list<INodePtr> &inodeList, const string &key) const;
+	list<DirINodePtr>::iterator lookFor(list<DirINodePtr> &inodeList, const string &key);
+	list<DirINodePtr>::const_iterator lookFor(const list<DirINodePtr> &inodeList, const string &key) const;
 	int hashCode(const string &key) const;
 	static const int kAllocSize = 10007;
-	vector<list<INodePtr> > table_;
+	vector<list<DirINodePtr> > table_;
 	int size_;
 };
 }
