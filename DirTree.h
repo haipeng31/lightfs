@@ -21,7 +21,7 @@ public:
 	/* directory operations */
 	int addDir(const string &pdir, const string &dir);
 	int delDir(const string &pdir, const string &dir);
-	const list<INodePtr>& readDir(const string &dir);
+	const list<INodePtr>& readDir(const string &dir) const;
 	int addFile(const string &pdir, const string &file);
 	int delFile(const string &pdir, const string &file);
 
@@ -31,7 +31,7 @@ public:
 	ChunkId getChunk(const string &path, int index);
 	ChunkId getLastChunk(const string &path);
 	
-	INodePtr getINode(const string &path);
+	INodePtr getINode(const string &path) const;
 
 	/* checkpoint the dir tree */
 	//void checkPoint(const CheckPointerPtr &checkPointerPtr);

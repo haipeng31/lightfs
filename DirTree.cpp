@@ -95,7 +95,7 @@ int DirTree::delDir(const string &pdir, const string &dir)
 	return 0;
 }
 	
-const list<DirTree::INodePtr>& DirTree::readDir(const string &dir)
+const list<DirTree::INodePtr>& DirTree::readDir(const string &dir) const
 {
 	INodePtr inode = dirTable_.search(dir);
 	if (inode == NULL) {
@@ -206,7 +206,7 @@ DirTree::ChunkId DirTree::getLastChunk(const string &path)
 	return tempFileINode->getChunk(tempFileINode->chunkCnt()-1);
 }
 
-DirTree::INodePtr DirTree::getINode(const string &path)
+DirTree::INodePtr DirTree::getINode(const string &path) const
 {
 	INodePtr dirnode = dirTable_.search(path);
 	if (dirnode != NULL) {
