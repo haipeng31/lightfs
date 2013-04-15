@@ -17,15 +17,15 @@
 #include <sys/types.h>		// for int64_t
 #include <memory>
 #include <assert.h>
+//#include "CheckPointer.h"
 using std::string;
 using std::list;
 using std::vector;
 using std::shared_ptr;
-using std::shared_from_this;
+using std::enable_shared_from_this;
 namespace lightfs {
 
 class CheckPointer;
-
 class INode {
 public:
 	typedef shared_ptr<CheckPointer> CheckPointerPtr;
@@ -69,7 +69,7 @@ private:
 	int gid_;
 };
 
-class DirINode : public INode, public shared_from_this<DirINode> {
+class DirINode : public INode, public enable_shared_from_this<DirINode> {
 public:
 	typedef shared_ptr<INode> INodePtr;
 	explicit DirINode(const string &key);
@@ -85,7 +85,7 @@ private:
 	list<INodePtr> children_;
 };
 
-class FileINode : public INode, public shared_from_this<FileINode> {
+class FileINode : public INode, public enable_shared_from_this<FileINode> {
 public:
 	typedef int64_t ChunkId;
 	explicit FileINode(const string &key);

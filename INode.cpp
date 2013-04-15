@@ -1,5 +1,5 @@
 #include "INode.h"
-
+#include "CheckPointer.h"
 using namespace lightfs;
 
 INode::INode(const string &key)

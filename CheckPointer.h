@@ -2,17 +2,21 @@
 #define CHECKPOINTER_H
 
 #include "DirTree.h"
+#include "INode.h"
 #include <memory>
+#include <queue>
+using std::queue;
 using std::shared_ptr;
 using std::enable_shared_from_this;
 namespace lightfs {
 
 class CheckPointer : public enable_shared_from_this<CheckPointer> {
 public:
+	typedef shared_ptr<INode> INodePtr;
 	CheckPointer();
 
 	int readTreeFromDisk(const string &checkPointFile);
-	void writeTreeToDisk(const string &checkPointFile);
+	int writeTreeToDisk(const string &checkPointFile);
 
 	void executeLog(const string &logFile);
 
@@ -29,8 +33,16 @@ private:
 		kFinishUpdate,
 		kFinishWrite
 	};
+
+	struct QueueEntity {
+		INodePtr node_;
+		string parentDir_;
+	};
+
 	FILE *fin_;
 	FILE *fout_;
+	queue<QueueEntity> checkPointQueue_;
+	string parentDir_;
 	State status_;
 	DirTree dirTree_;
 };

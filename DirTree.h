@@ -34,7 +34,7 @@ public:
 	INodePtr getINode(const string &path);
 
 	/* checkpoint the dir tree */
-	void checkPoint(const CheckPointerPtr &checkPointerPtr);
+	//void checkPoint(const CheckPointerPtr &checkPointerPtr);
 private:
 	HashTable dirTable_;	
 };
