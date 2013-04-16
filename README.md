@@ -6,5 +6,5 @@ just begins.
     shared_ptr<Base> baseNode(new Base());
     shared_ptr<Derived>(baseNode.get());
     一般都会悲剧(多次free).
-    派生类的智能指针可以隐式转化到基类的智能指针是正常的，如果需要基类的智能指针转化到派生类的智能指针，一般都是设计上出现了问题
+    派生类的智能指针可以隐式转化到基类的智能指针是正常的，如果需要基类的智能指针转化到派生类的智能指针(through static_pointer_cast)，一般都是设计上出现了问题
     需要看点智能指针的东西:)

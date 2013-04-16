@@ -25,13 +25,16 @@ public:
 	/* used for debugging */
 	DirTree &dirTree();
 	
+	/* used for write tree to disk */
 	void checkPointDir(const shared_ptr<DirINode> &dirINode);
 	void checkPointFile(const shared_ptr<FileINode> &fileINode);
 
 private:
-	
+	/* usedf for read tree from disk */
 	DirINodePtr buildDir();
 	FileINodePtr buildFile();
+	string getParentDir(const string &path);
+	string getName(const string &path);
 
 	enum State {
 		kInitialized,

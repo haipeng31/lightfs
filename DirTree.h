@@ -34,6 +34,10 @@ public:
 	
 	FileINodePtr getFileINode(const string &filePath) const;
 	DirINodePtr getDirINode(const string &dirPath) const;
+
+	/* used for building from file on disk */
+	int addDirNode(const string &pdir, const DirINodePtr &dirINodePtr);
+	int addFileNode(const string &pdir, const FileINodePtr &fileINodePtr);
 private:
 	HashTable dirTable_;	
 };

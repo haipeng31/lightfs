@@ -230,3 +230,31 @@ DirTree::DirINodePtr DirTree::getDirINode(const string &dirPath) const
 	return dirTable_.search(dirPath);
 }
 
+int DirTree::addDirNode(const string &pdir, const DirINodePtr &dirINodePtr)
+{
+	DirINodePtr pdirINodePtr = getDirINode(pdir);
+	if (pdirINodePtr == NULL) {
+		LOG_TRACE << "parent dir " << pdir << "doesn't exist";
+		return -1;
+	}
+
+	/* add new hash table item */
+	dirTable_.insert(dirINodePtr->key(), dirINodePtr);
+
+	/* add to the pdir's children list */
+	pdirINodePtr->addChild(dirINodePtr);
+
+	return 0;
+}
+
+int DirTree::addFileNode(const string &pdir, const FileINodePtr &fileINodePtr)
+{
+	DirINodePtr pdirINodePtr = getDirINode(pdir);
+	if (pdirINodePtr == NULL) {
+		LOG_TRACE << "parent dir doesn't exist";
+		return -1;
+	}
+
+	/* add to the pdir's children list */
+	pdirINodePtr->addChild(fileINodePtr);
+}

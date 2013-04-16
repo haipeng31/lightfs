@@ -1,5 +1,7 @@
 #include "INode.h"
 #include "CheckPointer.h"
+#include "netlib/base/Logging.h"
+using mynet::Logger;
 using namespace lightfs;
 
 INode::INode(const string &key)
@@ -120,7 +122,7 @@ const DirINode::FileINodePtr DirINode::searchChild(const string &key) const
 	list<INodePtr>::const_iterator lit;
 	for (lit = children_.begin(); lit != children_.end(); lit++) {
 		if ((*lit)->key() == key) {
-			return (*lit);
+			return std::static_pointer_cast<FileINode>((*lit));
 		}
 	}
 
@@ -187,11 +189,11 @@ int FileINode::initFromDisk(FILE *fin)
 	}
 	for (int i = 0; i < nBlock; i++) {
 		ChunkId chunkId;
-		if (fscanf(fin, "%lld", &chundId) != 1) {
+		if (fscanf(fin, "%lld", &chunkId) != 1) {
 			LOG_TRACE << "fscanf error";
 			return -1;
 		}
-		chunks_.push_back(chundId);
+		chunks_.push_back(chunkId);
 	}
 	
 	return 0;

@@ -22,10 +22,52 @@ CheckPointer::CheckPointer()
 int CheckPointer::readTreeFromDisk(const string &checkPointFile)
 {
 	assert(status_ == kInitialized);
+	
+	fin_ = fopen(checkPointFile.c_str(), "r");
+	if (fin_ == NULL) {
+		LOG_TRACE << "open file error";
+		return -1;
+	}
 
 	// do the thing
+	while (1) {
+		int type;
+		if (fscanf(fin_, "%d", &type) != 1) {
+			break;
+		}
+		if (type == 0) {          // Dir INode
+			DirINodePtr dirINodePtr = buildDir();
+			if (dirINodePtr->key() == "/") {
+				continue;
+			}
+			if (dirINodePtr == NULL) {
+				LOG_TRACE << "file format error";
+				return -1;
+			}
+			LOG_TRACE << "parentdir is " << parentDir_;
+			if (dirTree_.addDirNode(parentDir_, dirINodePtr) == -1) {
+				LOG_TRACE << "error when add dir node";
+				return -1;
+			}
+		} else if (type == 1) {   // File INode
+			FileINodePtr fileINodePtr = buildFile();
+			if (fileINodePtr == NULL) {
+				LOG_TRACE << "file format error";
+				return -1;
+			}
+			if (dirTree_.addFileNode(parentDir_, fileINodePtr) == -1) {
+				LOG_TRACE << "error when add file node";
+				return -1;
+			}
+		} else {
+			LOG_TRACE << "file format error";
+			return -1;
+		}
+	}
 	
+	fclose(fin_);
 	status_ = kFinishRead;
+	return 0;
 }
 
 /* 
@@ -119,11 +161,11 @@ void CheckPointer::checkPointFile(const shared_ptr<FileINode> &fileINode)
 CheckPointer::DirINodePtr CheckPointer::buildDir()
 {
 	char path[kMaxPath];
-	fscanf("%s", path);
+	fscanf(fin_, "%s", path);
 	string pathStr(path);
 	DirINodePtr dirINodePtr(new DirINode(pathStr));
 	
-	if (dirINodePtr->buildFromDisk(fin_) == 0) {
+	if (dirINodePtr->initFromDisk(fin_) == 0) {
 		parentDir_ = getParentDir(pathStr);
 		return dirINodePtr;
 	} else {
@@ -134,17 +176,33 @@ CheckPointer::DirINodePtr CheckPointer::buildDir()
 CheckPointer::FileINodePtr CheckPointer::buildFile()
 {
 	char path[kMaxPath];
-	fscanf("%s", path);
+	fscanf(fin_, "%s", path);
 	string pathStr(path);
 	parentDir_ = getParentDir(pathStr);
-	string fileName = getFileName(pathStr);
+	string fileName = getName(pathStr);
 	FileINodePtr fileINodePtr(new FileINode(fileName));
 	
-	if (fileINodePtr->buildFromDisk(fin_) == 0) {
-		parentDir_ = getParentDir(path);
+	if (fileINodePtr->initFromDisk(fin_) == 0) {
 		return fileINodePtr;
 	} else {
 		return FileINodePtr();
 	}
 
+}
+
+string CheckPointer::getParentDir(const string &path)
+{
+	size_t pos = path.find_last_of('/');
+	string parentDir = path.substr(0, pos);
+	if (parentDir == "") {
+		return "/";
+	} else {
+		return path.substr(0, pos);
+	}
+}
+
+string CheckPointer::getName(const string &path)
+{
+	size_t pos = path.find_last_of('/');
+	return path.substr(pos+1);
 }
