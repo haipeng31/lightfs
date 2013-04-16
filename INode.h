@@ -51,6 +51,8 @@ public:
 	
 	/* do checkpoint */
 	virtual void checkPoint(const CheckPointerPtr &) = 0;
+	/* initialize from disk file */
+	virtual int initFromDisk(FILE *fin);
 
 private:
 	string key_;
@@ -100,6 +102,7 @@ public:
 	int chunkCnt() const;
 	
 	void checkPoint(const CheckPointerPtr &checkPointerPtr);
+	int initFromDisk(FILE *fin);
 private:
 	vector<ChunkId> chunks_;
 };

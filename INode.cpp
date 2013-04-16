@@ -85,6 +85,16 @@ void INode::setGid(int gid)
 	gid_ = gid;
 }
 
+int INode::initFromDisk(FILE *fin)
+{
+	if (fscanf(fin, "%ld %ld %ld %d %d %d %d", &atime_, &mtime_, &ctime_,
+					&size_, &auth_, &uid_, &gid_) != 7) {
+		LOG_TRACE << "fscanf error";
+		return -1;
+	}
+	return 0;
+}
+
 DirINode::DirINode(const string &key)
  :	INode(key)
 {
@@ -164,6 +174,28 @@ void FileINode::checkPoint(const CheckPointerPtr &checkPointerPtr)
 	checkPointerPtr->checkPointFile(shared_from_this());
 }
 
+int FileINode::initFromDisk(FILE *fin)
+{
+	if (INode::initFromDisk(fin) == -1) {
+		return -1;
+	}
+
+	int nBlock;
+	if (fscanf(fin, "%d", &nBlock) != 1) {
+		LOG_TRACE << "fscanf error";
+		return -1;
+	}
+	for (int i = 0; i < nBlock; i++) {
+		ChunkId chunkId;
+		if (fscanf(fin, "%lld", &chundId) != 1) {
+			LOG_TRACE << "fscanf error";
+			return -1;
+		}
+		chunks_.push_back(chundId);
+	}
+	
+	return 0;
+}
 /*
 int INode::mode()
 {

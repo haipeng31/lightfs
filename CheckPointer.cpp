@@ -115,3 +115,36 @@ void CheckPointer::checkPointFile(const shared_ptr<FileINode> &fileINode)
 	}
 	fprintf(fout_, "\n");
 }
+
+CheckPointer::DirINodePtr CheckPointer::buildDir()
+{
+	char path[kMaxPath];
+	fscanf("%s", path);
+	string pathStr(path);
+	DirINodePtr dirINodePtr(new DirINode(pathStr));
+	
+	if (dirINodePtr->buildFromDisk(fin_) == 0) {
+		parentDir_ = getParentDir(pathStr);
+		return dirINodePtr;
+	} else {
+		return DirINodePtr();
+	}
+}
+
+CheckPointer::FileINodePtr CheckPointer::buildFile()
+{
+	char path[kMaxPath];
+	fscanf("%s", path);
+	string pathStr(path);
+	parentDir_ = getParentDir(pathStr);
+	string fileName = getFileName(pathStr);
+	FileINodePtr fileINodePtr(new FileINode(fileName));
+	
+	if (fileINodePtr->buildFromDisk(fin_) == 0) {
+		parentDir_ = getParentDir(path);
+		return fileINodePtr;
+	} else {
+		return FileINodePtr();
+	}
+
+}
